@@ -1,0 +1,110 @@
+trainjson id 4207
+
+resnet152 3ep hidden
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.609
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.872
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.704
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = -1.000
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.365
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.615
+
+resnet50 5ep hidden, blur/vflip
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.519
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.803
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.561
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = -1.000
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.278
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.526
+
+30mins resnet101 3ep
+Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.205
+Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.358
+Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.333
+
+1112 resnet50 5ep, blur/crop
+
+47mins resnet50 5ep, blur/crop, original params for most
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.640
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.884
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.722
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = -1.000
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.452
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.648
+
+
+8ep is good
+
+Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.658
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.900
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.758
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = -1.000
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.417
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.665
+
+
+Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.656
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.902
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.738
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = -1.000
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.377
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.663
+
+3h resnet50 20ep, optim5, blur only
+Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.663
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.904
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.750
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = -1.000
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.356
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.671
+
+resnet152 10ep, 
+Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.658
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.901
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.763
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = -1.000
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.346
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.666
+
+
+mods 10ep
+Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.651
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.893
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.740
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = -1.000
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.428
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.659
+
+
+c2
+
+65mins 10ep, optim4, blur only, resnet152
+Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.602
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.842
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.659
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.126
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.194
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.622
+
+65min 10ep, optim4, blur/crop/jitters, resnet152
+Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.608
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.820
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.731
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.067
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.180
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.628
+
+101min resnet152 15ep, optim6, hflip/blur/crop/jitters 50%
+train
+Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.625
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.845
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.745
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.158
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.167
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.646
+val
+Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.625
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.845
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.742
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.188
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.163
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.647

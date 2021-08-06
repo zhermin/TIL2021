@@ -1,0 +1,440 @@
+// image processing, (transforms.xxx())
+- scale down
+- normalise (/255 to be btwn -1 to 1)
+- data augmentation (increase training data / robustness)
+  - mirroring
+  - cropping
+  - blur/sharpen filter (apply matrix to change each pixel data): edge detections
+    - filter/kernel to get weighted average (matrix mul / convolution)
+    - can be considered a feature extraction technique
+  - rotation
+  - slight color alterations
+  - texture changes
+  - deformations (remove parts of the image to focus on certain areas)
+
+ohe for image inputs
+
+// multi-class cnn
+- input layer (68x95x79)
+- convolutional layer (64x91x75): based on 5x5x5 convolution
+  - reduces the feature maps by 5-1x5-1x5-1 or 4x4x4
+  - this layer can be pre-trained with a sparse autoencoder
+- pooling layer (12x18x15): 64/5 x 91/5 x 75/5
+  - then goes through "max-pooling" to extract max value of each 5x5x5 block in the entire feature map (similar to convolution layer but no convolution operation, just max of each window)
+  - used to reduce dimension which can reduce overfitting
+  - also works for other operations naturally, eg. avg, min
+- then goes through 3-layer network trained w GD & backprop on labelled data (pooling layer + 1 hidden layer + output layer) with softmax to get ohe predicted value
+
+// CNN
+cnn most popular for image problems
+  - images if split into "slices" of 1d arrays, impossible to understand because spatial information are lost
+  - cnn ensure the information are there to be able to extract the features
+  - using pixel aggregation (weighted operations on pixels) to reduce parameters drastically (box filtering technique)
+
+// CNN (DEEP LEARNING) != MACHINE LEARNING
+ML: input > feature extraction > classification > output
+DL: input > feature extraction + classification > output
+* CNN itself extracts features for its own learning using box filter method
+
+// CNN LAYERS
+1. convolutional layer: subpart of image convolved with kernel matrix (with kernel weights)
+  - element-wise dot multiplication instead of matrix multiplication
+2. pooling layer: max/min/avg feature extraction method using sliding window
+  - extracts key elements
+3. dropout layer: uniformly random dropping of data points to prevent overfit
+
+// CNN HYPERPARMS TUNING
+1. Stridng: step size of filter box
+  - bigger stride = lesser parameters and data output
+  - reduces overlaps and spatial dimensions
+2. padding: to compensate for striding
+  - keeps dimension intact
+  - increases white spaces at ends of image, increasing importance of borders
+3. dilation: increase spread of convolution (spacing btwn kernel points)
+  - less common but more for image segmentation (class for each pixel)
+  - increase "global view" of data exponentially at low cost
+
+// CNN PRE-TRAINING
+SOTA Models: LeNet (sigmoid, 8 layers) > AlexNet (ReLU, 8 layers, binary) > VGG-16 (13 layers, multi-class) > ResNet50 / InceptionV3 / combo = better accuracy
+- these kernels have learned some image patterns (edges, shapes, etc.)
+  - by loading same CNN and remove last layer (used for prediction) and replacing with one suited to problem, able to learn weights specific to our problem
+  - "transfer learning"
+
+// poor accuracies for a particular class in multi-class CNN
+- a lot of false positives for another class
+- optimisation techniques
+  - pre-train model
+  - clean data
+  - feed more data of the poor accuracy class
+  - more image processing
+
+// OBJECT DETECTION
+1. image classification: label the entire image with one class
+2. object detection using bounding box: labels different objects with bboxes
+3. image segmentation: label every pixel so each object is a unique object
+4. semantic segmentation: detects and classify all objects from same class
+
+annotations: bbox(left, top, width, height) & masking (color different classes)
+
+// R-CNN
+- finds sub-regions of interest (ROIs) using selective search by combining regions w similar pixels and textures into bboxes
+- as model trains, the boxes are aggregated further (max-pooling) to extract more generic boxes that can classify as objects
+- bboxes will then be classified
+- background classes used to remove bad proposals (eg. sky, grass, etc.) 
+- compute regression (error) btwn predicted boxes and ground-truth boxes
+
+// Faster R-CNN
+- instead of starting from individual pixels then aggregate up, use RPN to selectively search regions (ROIs) straight away
+- predicted proposals then reshaped to fixed size using ROI pooling
+- classifier again predicts class of proposal and offset values for bbox
+
+// RPN proposal system
+- input image fed into backbone (pre-trained) CNN (ResNet, VGG, etc.)
+- place set of anchors on input img for each location on output feature map from backbone network
+- then evaluate the anchors (since they may contain relevant objects), ie. can it be better adjusted to fit the object
+
+// RPN Anchors
+- each anchor w 2 key information
+  1. objectness score: probability that anchor contains an object (if Background high means high chancen not an object but just part of the background)
+    >> Background 0, Object 1
+  2. regression score: bbox regression to adjust anchors to better fit the object (observing fit given change in x_center, y_center, width, height)
+- anchors are areas where most likely to have an object
+
+// ROI Pooling
+- reuse existing conv. feature map by extracting fixed-size feature maps for each proposal
+- common practise (CD: convolutional depth, no. of layers in network)
+  1. crop the proposals out from the feature map
+  2. resize to a fixed size of 14x14xCD using bilinear interpolation
+  3. max pool w 2x2 kernel
+  4. resultant 7x7xCD feature map
+
+// mAP
+- compare models by evaluating IoU btwn predicted and actual bbox (0 to 1)
+- formula: (ACTUAL ⋂ PREDICTED) / (ACTUAL ∪ PREDICTION)
+- benchmark usually 0.5 (50%) overlap
+  - precision decrease when FP false +ve increase (TP+FP inc), measures TP
+  - recall decrease when FN false -ve increase (TP+FN inc), measures TN?
+- mAP above 90%/95% is good
+- mAP the averaged precision over the stochastic (random) nature of the models
+- smooths out precision & recall curve
+- less sensitive to small variations in output
+- formula: replace precision value for recall with max precision for any recall
+
+// NMS (post-processing) to resolve duplicate detections (built-in RCNN)
+3 inputs:
+  1. list of proposal boxes (tagged to a particular class)
+  2. confidence scores for each proposal box
+  3. overlap threshold hyperparam
+
+// MODEL TRAINING AND IMPROVEMENTS
+** remember to track changes, change one thing at a time, systematic approach
+1. data-centric approaches (often improves baseline model much more than model-centric approaches) - Big Data to Good Data mindset
+  a. data cleaning (error analysis)
+    - wrong labels
+    - noisy labels (similar imgs, ambigious imgs, )
+  b. subsampling
+    - small samples of each class, reduces overfit and training time and able to perform faster hyperparam tuning
+  c. cross-validation
+    - estimates skill of model on unseen data
+    - use small sample of test data for each parallel run again to help perform hyperparam tuning on the small samples
+  d. data sanity
+    - using independent labelers to label a sample
+    - complementary labeling (use secondary labels to improve generalisation)
+  e. increase sample sizes (changing features, x)
+    - data augmentation (but don't overdo else will overfit)
+    - data generation
+    - data collection
+  f. changing labels (changing targets, y)
+2. model-centric approaches
+  a. pipeline changes
+    i. training supervised classifier on labeled dataset
+    ii. assign class to another set of unlabeled sample using previous model (pseudo labeling) to construct new pseudo labeled dataset
+    iii. train bigger model (larger architecture) w strong data augmentation on combined labeled and pseudo labeled dataset to increase generalisation
+  b. hyperparam tuning
+    - LR: using LR scheduler to make LR dynamic
+    - GD: SGD/ADAM
+    - striding/paddding/kernel size/etc.
+    - MaxPooling/AvgPooling/Dropout/Dilations
+    - L1:sum of abs weights/L2:sum of squared weights/L1L2 regularisation
+      - on log scale usually 0 to 0.1
+
+// SC Intro
+CNN Method: instead of directly learning patterns in time/freq domains, convert audio signal to image then use CNN to learn the patterns
+other methods: depends on the network, use the appropriate domain
+RNN Method: learn on actual sound waves
+
+use cases:
+1. speech command recognition (multi-class), eg. Siri
+  - classify input audio pattern into discret set of classes
+  - must be small and efficient to be deployed on low-power sensors and remain active for long time
+2. voice activity detection (binary/multi-class)
+  - predict which parts of input audio contain speech or background noise
+3. audio sentiment classification (multi-class)
+  - understanding tonality, volume, emotions, etc. 
+
+CNN process:
+1. convert sound files into spectograms (pytorch / librosa package)
+2. use signal processing to extract key information
+3. input into model
+4. predict class of sound
+
+// RNN
+- cells: similar to flipflops
+- input and previous state into usually tanh activation function before output as next state
+- hidden state vectors store memory of previous inputs (like flipflops)
+- also good for anomaly detections (spikes in certain periods of time can only be discovered with reference/relationship to other frames)
+- image/vid captioning
+- pretrained models can solve translation, more complex problems
+
+// LSTM
+- vs. RNN: only take input directly from previous state (RNN suffers from short-term memory)
+- LSTM takes in inputs from other previous states
+- includes a "forget gate" which determines which data are important and be kept and passed to the hidden states (passed through sigmoid function, 0 to 1)
+- sigmoid 0: multipled by 0 = 0 so dropped, vice versa if 1
+- more sigmoids before and after passing through key tanh function to determine importance of data
+- sigmoid 0 to 1 ensures no exploding gradients from tanh's -inf to inf function
+
+inputs/outputs
+- ct: cell state (memory)
+  - prev_ct: previous memory output
+- ht: hidden state (the entire hidden "layer")
+  - prev_ht: previous output
+- ft: forget layer
+- ot: output layer
+
+def LSTM(prev_ct, prev_ht, input): 
+  combine = prev_ht + input // merge previous output with new input
+  ft = forget_layer(combine) // sigmoid to know whether to drop data
+  candidate = candidate_layer(combine) // best outcome
+  it = input_layer(combine)
+  CT = prev_ct * ft + candidate * it // forgets if necessary, add to candidate
+  ot = output_layer(combine)
+  HT = ot * tanh(CT)
+  return HT, CT  // returns next hidden state and next cell state
+
+callbacks very important - automate hyperparam tuning and speed up experiments
+*patience: number of epochs with no improvements in monitored variable
+1. checkpoint (saves the best seen model so far): most impt for competitions
+2. lr scheduler (alters lr after number of epochs)
+3. reduce lr on plateau (decrease lr when no improvements past patience)
+4. earlystopping (quits if no improvements past patience)
+
+data augs crucial
+1. random flip
+2. random crop
+3. random noise/jitters
+
+OVERFITTING
+when val fluctuating/getting worse even as train improving
+- regularisation
+- dropout
+- clean data
+- etc. 
+
+---------------------------------------------------------------------------------
+
+// JARGONS
+* CV: computer vision
+* SC: speech classification
+* FPN: feature pyramid network (feature extractor, input single-scale image output proportionally sized feature maps at multiple levels, faster and more accurate than just have a pyramid of scaled image)
+* RPN: region proposal network (the actual object detector using slide boxes to get ROIs)
+* IoU: intersection over union (bounding boxes' overlaps)
+  - intersection of actual/prediction divided by union of actual/prediction
+* ROI: region of interest (bounding boxes of likely positions of objects)
+* ResNet
+* YOLO: you only look once, a SOTA model, one-stage detector (directly classifies bbox using regression), lower accuracy but faster training
+* FasterRCNN: region-based CNN
+* MaskRCNN: region-based CNN, two-stage detector
+  - feature extractor > proposal generator (draws out bboxes) + box classifier (classifies bboxes)
+* FC: fully connected
+* MLP: multi-layer perceptron
+* epoch: instance of time when entire dataset is passed through the NN once
+* iteration: number of batches needed to complete 1 epoch (dataset / batch size)
+* kernel (matrix): convolution matrix / mask / box filter
+* NMS: non-maximum suppression (in FasterRCNN pytorch package, post-processing technique for duped bboxes)
+* .pth: .PyTorch extension (to save trained models; ie. the weights/biases)
+* mAP @ 0.50:0.95 : mean average precision
+* optimiser: loss function reducer
+* SGD: stochastic gradient descent (an optimiser, basically randomised GD)
+* ADAM: adaptive moment estimation (popular, another optimiser, extension to SGD)
+  - based on problem that optimal learning rate needs to be found
+  - so use a learning rate scheduler (large changes early, small later)
+  - applicable to k-means clustering also
+* SOTA: state-of-the-art
+* softmax: generates class probability btwn 0 to 1 for multi-class problems
+* CD: convolutional depth (topological depth of network incl. activation layers, batch normalisation (eg. pixel norm. /255), etc.)
+* cross-entropy loss / log loss: loss function (FOR CLASSIFICATION)
+  - measures performance of classification model with probability outputs (0 to 1, ie. from softmax)
+* mean-squared/abs error: euclidean distance (FOR REGRESSION)
+* ground truth: labelled data, "correct" data
+* batch-normalisation: normalisation (eg. /255) on each batch of data
+* stratify: sample equal proprtions of train/test data during train_test_split
+* requires_grad / no_grad: off GD means freeze model weights since model cannot learn and modify itself through GD and backprop 
+* repr: also repr() in python, string representation of the object
+* precision: TP/(TP+FP)
+* recall: TP/(TP+FN)
+* FNN: feedback neural network
+* RNN: recurrent neural network
+* R-CNN: region-based conv neural network (due to aggregation of ROIs)
+* GAN: generative adversarial network
+* tanh: hyperbolic tangent activation function, -inf to +inf
+
+---------------------------------------------------------------------------------
+
+// BASELINE CV MODEL
+FasterRCNN Model (also exists a Lightning version)
+: good for multiple objects in 1 img (YOLO suitable for 1 img 1 obj)
+ + ResNet50 Backbone
+ + FPN (mean/std normalisation + rescaling)
+ + NMS (built-in from FasterRCNN)
+ + pytorch's fasterrcnn_resnet50_fpn pre-training
+ - non-confidence detection threshold (disable for higher mAP)
++++ optimisers & callbacks
+ + SGD optimiser
+ + learning rate scheduler
+ | early stopping
+ | reduce lr on plateau
+ | checkpoints
++++ data augmentations (depends on data if makes sense)
+ + random horizontal flip
+ | random crop
+ | random zoom
+ | random jitters
+ | random rotations
+ | random vertical flip
+
+---------------------------------------------------------------------------------
+
+winners' models
+---
+
+// CV
+- msoft Swin-L transformer (3rd best, 1st/2nd = DyHead)
+- cascade mask RCNN (multi-stage extension to two-stage RCNN)
+- trained w largest baseline model but took 8h
+  - use small versions (base model, 12 ep and default params)
+  - 1 cycle LR scheduler so use high starting LR >> cuts to 6 ep
+- to combat multiple models: ensemble approach using weighted boxes fusion (WBF)
+  - use info from all boxes
+  - ensemble models predict inaccurate boxes by taking the average of all boxes
+  - compared to NMS/soft-NMS which just removes boxes w/ low-confidence
+  - WBF combines instead of discards boxes >> +5%
+- freeze backbone because training backbone might cause overfitting and also reduce params and speed up training
+- other archis: beta rcnn, universenet-20.08, yolo4/5, deceptron2, centernet2
+- images from external sources and other days of the hackathon lols
+- model ensemble
+- data augs: RandomHSV, R.HFlip, R.Scale, R.Translate, zoom, adding rain data aug from github (since test has rain pics), resize and posterize for pixelation, equalise
+- test-time augmentation
+  - flip test imgs, predict on both original and flipped then ensemble both results
+- Detectron2 on top of pytorch, X101-FPN & EfficientDet-d3 >> sucks
+- faster rcnn fpn > transfer learning by importing pretrained weights from coco datasets with similar images) > freeze pretrained resnet50 except 3 trainable layers and the rest of the model
+- batch size 2/4, lr 0.001/0.005, lr gamma 0.5/0.1, 8/5ep for c1, bigger batch sizes for c3/c5
+- vfnet (varifocalnet) and universenet101
+- mm detection
+- input > data augs > vfnet + universenet101 (in parallel) > wbf ensemble + original/flip_test ensemble > inferred bounding boxes
+-* FiftyOne library to check class balance (preprocessing)
+-* Labelimg library to check correct annotations (preprocessing)
+- use own saved trained weights
+- YOLOv4 uses G-IOU Loss for better bbox prediction and aggregation
+- YOLOv5 uses grids instead of regions to predict bboxes and classify the bboxes
+  - use evolved hyperparams that trained on COCO datasets
+  - hyp.scratch.yaml (COCO) & hyp.finetune.yaml
+- 2 stage training
+  - freeze model body, train model head for few ep
+  - unfreeze model body, train entire model for at least 30ep
+- mixed precision training to reduce memory usage
+  - forward pass and gradient calcs in half precision fp16 for speed
+  - backprop in single precision fp32 for precision
+  - only 1 line of code change with 'fastai' training loop
+  - allows increase in batch size and reduce training time
+- lr finder to find most optimal lr (might not be most efficient)
+  - mock training on few batches of data while varying lr and plot training loss
+  - systematically determines optimal lr without guessing
+  - dont pick lowest lr, take 10^1 up from lowest lr
+- 1cycle training policy (lr_scheduler = 1)
+- save model callback to log best val loss model
+- WandB (weights and biases) viz tool
+- imgaug for the rain images data augs
+
+// SC
+- mel spec similar to baseline
+- change freq to 20Hz - 4000Hz, human speech range (slower overfitting)
+- use 'tune' python library to automate hyperparam tuning
+  - more LSTM layers not always better
+  - more hidden units in LSTM often better instead
+- encoder-decoder w/ transfer learning
+  - transfer learning using YAMNet into dense layer for encoding
+  - 2 LSTM layers into dense for decoding
+  - not that great. for c4 only
+- tried conv1d-lstm resnet-style architecture for c6
+  - stacked conv1d-lstm blocks 3x w/ single skip connection after first 2 blocks 
+  - good train/val but bad test results
+- cnn architecture
+  - batchnormalisation + dropout for regularisation
+  - final result:
+    - input > 4 blocks (bunch of layers) > flatten > fully connected layer > output
+- model architecture (collating multiple models): KFold and ensemble learning
+  - encourage differences between models by using same learning algo on diff training datasets
+    - kfold method splits train/val into 10 splits to train 10 diff models
+    - then use soft voting scheme to add all probabilities for each class from all 10 models and output class with the highest prob value
+- can try MFCC transform which isolates human voice better
+- can try RNNoise for noise-reduction for preprocessing
+- can try modifying padding techniques and data augs
+- weighted voting ensemble: for each test sample, maintain freq dict of predictions then choose highest-freq pred
+
+j=0
+for pred in preds:
+  if pred[i][1] in preds_dict: preds_dict[pred[i][1]] += 1*weights[j]
+  else: preds_dict[pred[i][1]] = 1*weights[j]
+  j += 1
+
+- data augs: echo, robotic filter, white/background noise (sampled randomly from youtube clips)
+- custom model with bandpass preprocessing
+input > LPF > HPF > 
+            noise > addition > delay > log power FFT > file sink
+
+- stratified-kfold (sklearn) cross-validator
+- Audiomentations library to do data augs (0.7/0.3 weak/strong augs)
+- start w/ resnet18 for fast tuning then switch to resnet152
+- wav2vec model (fast and pretrained, unsupervised, CTC beam decoder)
+- bidirectional gru, earlystop/lrplateau/5,10 fold cross validation, time masking 5, freq masking 5, noise sigma 0.7/1.2, lr 1e-02, hidden size 256, layers 2, batch size 32, adagrad optim, 30ep
+- google speech commands v2 additional dataset
+- melspec CNN/RNN, perceiver >> ok
+- MMV, contextnet, wav2vec2 >> bad
+- best 97%: triple melspec w diff windows and hop lengths to form tri-channel input, fed into densenet image classification model pretrained on imagenet weights
+  - change densenet to efficientnetv2-L (bigger, stronger representational power, trains fast)
+  - randomise time/freq masking
+  - raytune library, HEBO search algo for hyperparam search
+  - tensorboard for results viz
+  - async hyperband scheduler for earlystopping of bad configs
+- polarity inversion data aug
+- deep stacking ensembling, but model too large, so averaged the logits
+- fullsubnet
+- 5 models
+  - 3 pretrained on imagenet: resnet, densenet, vgg
+  - 2 from scratch: xresnext, xse_resnet
+- ranger optimizer (rectified adam, RAdam + lookahead optims)
+  - RAdam: improved ver of adam wrt adaptive momentum mechanism
+  - lockahead: safety mechanism to reduce variance in training
+- volume changes not very effective data aug
+- Adam/AdamW > SGD (trouble with many minimas)
+
+*duplicate data then augment the clone
+*ensemble (multiple .pth weights) effective only on models trained on very different data / data augs
+*voting / soft-voting ensemble methods
+*"overfitting fast" >> badddddd
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

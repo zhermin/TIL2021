@@ -1,0 +1,15 @@
+todo
+---
+- audio dataaug
+ - silence (padding)
+ - etc
+- change train/test split
+- cnn method (maybe not since time info lost?)
+- if train acc too high means no use training more already
+- try tensorboard or the other results viz
+- gridsearch on lr
+
+ask dsta
+- linkedins
+- dsta 2022 summer internship appl.
+- wafer defect class - cnn?
